@@ -2,7 +2,17 @@
 
 The `spokes-react` package provides [Spokes](https://github.com/joelvh/spokes) integration into your React app. This allows your webpage and React app to communicate through a shared instance of Spokes to share global state and for pubsub communication.
 
-## Setup Context Provider
+## Install
+
+`npm install spokes-react --svae`
+
+or
+
+`yarn add spokes-react`
+
+## Setup
+
+### Spokes Context Provider
 
 Adding the `SpokesProvider` context provider at the root of your application allows you to specify the instance of Spokes to be referenced by components. Additionally, specify a topic name that is used for pubsub communication within the React app.
 
@@ -47,7 +57,7 @@ ReactDOM.render(
 )
 ```
 
-## Setup Context Consumer
+### Spokes Context Consumer (`withSpokes` HOC)
 
 The `withSpokes` HOC makes it really easy to add Spokes as a prop to any component. Additionally, you can map global state or topic events to props as well.
 
