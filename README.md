@@ -88,7 +88,7 @@ function MyComponent ({ spokes, user, campaign }) {
 }
 
 export default withSpokes(MyComponent, {
-  // specify the prop to receive the context value
+  // specify the prop to receive the context value (default: "spokes")
   prop: 'spokes',
   // "App" topic defined in `SpokesProvider`
   topic: {
