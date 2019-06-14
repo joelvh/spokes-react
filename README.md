@@ -4,7 +4,7 @@ The `spokes-react` package provides [Spokes](https://github.com/joelvh/spokes) i
 
 ## Install
 
-`npm install spokes-react --svae`
+`npm install spokes-react --save`
 
 or
 
