@@ -1,4 +1,4 @@
-import { createElement, createContext, useContext, useState } from 'react'
+import { Component, createElement, createContext, useContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import isEqual from 'react-fast-compare'
 import Spokes from 'spokes'
@@ -13,16 +13,17 @@ export function SpokesProvider ({ children, spokes: client, topicName }) {
     client,
     topic,
     publish (key, value) {
-      client.debug('SpokesProvider publish event', key, 'value', value)
+      client.debug('SpokesProvider#publish', key, 'value', value)
       return topic.publish(key, value)
     },
-    setGlobalState (name, value) {
-      client.debug('SpokesProvider set state name', name, 'value', value)
-      return client.setState(name, value)
+    setState (key, value) {
+      client.debug('SpokesProvider#setState', key, 'value', value)
+      return client.setState(key, value)
     },
-    getGlobalState (name) {
-      client.debug('SpokesProvider get state name', name)
-      return client.getState(name)
+    getState (key) {
+      const value = client.getState(key)
+      client.debug('SpokesProvider#getState', key, 'value', value)
+      return value
     }
   }
 
@@ -36,6 +37,7 @@ SpokesProvider.propTypes = {
 
 export function createClient (options = {}) {
   return new Spokes({
+    debug: true,
     keepHistory: true,
     withLastEvent: true,
     comparer: isEqual,
@@ -43,48 +45,106 @@ export function createClient (options = {}) {
   })
 }
 
+const buildKeyHandler = (filterKeys, handler) => ({ key, value }) => {
+  if (filterKeys.includes(key)) {
+    handler(value, key)
+  }
+}
+
+// `globalKey` - the key to subscribe to in Spokes global state "topic"
+// returns [value, setState(value)]
+export function useSpokesState (globalKey) {
+  const { client: { stateTopic }, getState, setState } = useContext(SpokesContext)
+  const globalValue = getState(globalKey)
+  const [localValue, setLocalValue] = useState(globalValue)
+
+  useEffect(() => {
+    const subscription = stateTopic.subscribe(
+      buildKeyHandler([globalKey], setLocalValue),
+      { withLastEvent: false }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [globalKey])
+
+  return [localValue, value => setState(globalKey, value)]
+}
+
+class SpokesComponent extends Component {
+  constructor (props) {
+    super(props)
+
+    this.subscriptions = []
+    this.state = {}
+
+    const { context: { getState } } = props
+
+    this.configure(([topic, map, keys]) => {
+      keys.forEach(key => {
+        this.state[map[key]] = getState(key)
+      })
+    })
+  }
+
+  configure (configurator) {
+    const { context: { topic, client: { stateTopic } }, topicMap, stateMap } = this.props
+    const maps = [
+      [topic, topicMap, Object.keys(topicMap)],
+      [stateTopic, stateMap, Object.keys(stateMap)]
+    ]
+
+    maps.forEach(configurator)
+  }
+
+  componentDidMount () {
+    this.configure(([topic, map, keys]) => {
+      if (keys.length) {
+        this.subscriptions.push(
+          topic.subscribe(buildKeyHandler(keys, (value, key) => {
+            this.setState({ [map[key]]: value })
+          }), { withLastEvent: true })
+        )
+      }
+    })
+  }
+
+  componentWillUnmount () {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe())
+  }
+
+  render () {
+    const { children, component, context, topicMap, stateMap, ...props } = this.props
+    return createElement(component, props, children)
+  }
+}
+
+SpokesComponent.propTypes = {
+  component: PropTypes.any.isRequired,
+  context: PropTypes.object.isRequired,
+  topicMap: PropTypes.object,
+  stateMap: PropTypes.object
+}
+
+SpokesComponent.defaultProps = {
+  topicMap: {},
+  stateMap: {}
+}
+
 // `publisher` - indicates if additional props for publishing and Spokes state management should be added
 // `topic` - map of published events mapped to prop names
 // `state` - map of published state changes mapped to prop names
-export function withSpokes ({ prop = 'spokes', topic: topicMap = {}, state: stateMap = {} } = {}) {
-  const topicKeys = Object.keys(topicMap)
-  const stateKeys = Object.keys(stateMap)
-
-  return component => function Component ({ children, ...props }) {
-    const [state, setState] = useState({})
-    const context = useContext(SpokesContext)
-    const { topic, client } = context
-
-    const maps = [
-      [topic, topicMap, topicKeys],
-      [client.stateTopic, stateMap, stateKeys]
-    ]
-
-    maps.forEach(([topic, map, keys]) => {
-      if (!keys.length) {
-        return
-      }
-
-      const handler = ({ key, value }) => {
-        client.debug('withSpokes handling key', key, 'value', value)
-
-        if (keys.includes(key)) {
-          const prop = map[key]
-
-          // assumes the value changed
-          setState({ ...state, [prop]: value })
-        }
-      }
-
-      topic.subscribe(handler, { withLastEvent: true })
+export function withSpokes (component, { prop = 'spokes', topic: topicMap = {}, state: stateMap = {} } = {}) {
+  return ({ children, ...props }) => {
+    return createElement(SpokesConsumer, null, context => {
+      return createElement(SpokesComponent, {
+        component,
+        context,
+        prop,
+        topicMap,
+        stateMap,
+        [prop]: context,
+        ...props
+      }, children)
     })
-
-    const componentProps = {
-      [prop]: context,
-      ...props,
-      ...state
-    }
-
-    return createElement(component, componentProps, children)
   }
 }
