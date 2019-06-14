@@ -80,8 +80,10 @@ function MyComponent ({ spokes, user, campaign }) {
   } = spokes
 
   return (
-    <h1>Hi {user.name}</h1>
-    <p>Thank you for visiting us from {campaign.name}</p>
+    <>
+      <h1>Hi {user.name}</h1>
+      <p>Thank you for visiting us from {campaign.name}</p>
+    </>
   )
 }
 
