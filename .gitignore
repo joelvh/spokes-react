@@ -1,4 +1,4 @@
 node_modules/
-build/*
-!build/.gitkeep
+/dist/
 package-lock.json
+yarn-error.log

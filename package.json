@@ -2,17 +2,27 @@
   "name": "spokes-react",
   "version": "1.0.1",
   "description": "React HOC and hooks to integrate Spokes for global state and pubsub.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": "https://github.com/joelvh/spokes-react",
   "author": "Joel Van Horn",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "build": "babel src -d dist",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm version patch",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
+  },
   "dependencies": {
     "prop-types": "^15.7.2",
     "react-fast-compare": "^2.0.4",
     "spokes": "^0.5.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "react": "^16.8"
   }
 }
