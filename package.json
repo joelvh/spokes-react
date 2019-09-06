@@ -1,6 +1,6 @@
 {
   "name": "spokes-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React HOC and hooks to integrate Spokes for global state and pubsub.",
   "main": "dist/index.js",
   "repository": "https://github.com/joelvh/spokes-react",
