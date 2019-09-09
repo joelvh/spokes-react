@@ -2034,9 +2034,9 @@ split-string@^3.0.1, split-string@^3.0.2:
     extend-shallow "^3.0.0"
 
 spokes@^0.5.1:
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/spokes/-/spokes-0.5.2.tgz#9746fd2ff1cf650459eb20d15f50d4490a935ea3"
-  integrity sha512-EWf9iTT+SZpRroHW43pgpptqd4fUOFF0/XCenBUfr74d3xNYrnp+uySt/bu11vUUHZsoA3z1BOwDJOPIuYllmg==
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/spokes/-/spokes-0.5.3.tgz#a60bbd94c2c0e5710aaed3e2171c1bca03bd1db5"
+  integrity sha512-ADfDJByw2/XthoTlFpNwU3xRpOm9+CuSipPA+BRS4upjsgUnUaWU34MBAW2cW3CG2uQOzWvUtOnu4PsjzTQpyw==
 
 static-extend@^0.1.1:
   version "0.1.2"
