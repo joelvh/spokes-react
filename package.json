@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "prop-types": "^15.7.2",
-    "react-fast-compare": "^2.0.4",
+    "react-fast-compare": "^3.0.1",
     "spokes": "^0.5.1"
   },
   "devDependencies": {
